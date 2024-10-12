@@ -7,10 +7,11 @@ const app = express()
 const port = process.env.PORT || 5000
 
 app.use(cors({
-  origin: ['http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
     'http://localhost:5174',
-
     'https://blogy-2.netlify.app',
+    'https://blogy-server-ten.vercel.app'
 
   ],
   credentials: true
@@ -111,19 +112,10 @@ async function run() {
       const email = req.params.email;
       console.log("Email received:", email); // Debugging email received
       const query = { 'userInfo.email': email };
-  
-      try {
-          const result = await blogsCollection.find(query).toArray();
-          console.log("Blogs fetched:", result); // Debugging result
-          if (result.length > 0) {
-              res.status(200).json(result);
-          } else {
-              res.status(404).json({ message: 'No blogs found for this email.' });
-          }
-      } catch (error) {
-          console.error("Error fetching blogs:", error); // Log the error
-          res.status(500).json({ error: 'An error occurred while fetching the blogs.' });
-      }
+  console.log(query);
+  const result = await blogsCollection.find(query).toArray()
+      res.send(result)
+      
   });
   
   
