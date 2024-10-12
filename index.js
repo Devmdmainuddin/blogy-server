@@ -8,14 +8,15 @@ const port = process.env.PORT || 5000
 
 app.use(cors({
   origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://blogy-2.netlify.app',
-    'https://blogy-server-ten.vercel.app'
-
+    'http://localhost:5173', // Frontend running locally
+    'http://localhost:5174', // Another local instance
+    'https://blogy-2.netlify.app', // Hosted frontend on Netlify
+    'https://blogy-server-ten.vercel.app' // Your hosted backend
   ],
-  credentials: true
+  credentials: true, // Allow cookies to be included in requests
+
 }));
+
 app.use(express.json());
 
 // ...............................
@@ -107,59 +108,6 @@ async function run() {
       const result = await blogsCollection.findOne(query)
       res.send(result);
     })
-
-    app.get('/blogs/:email', async (req, res) => {
-      const email = req.params.email;
-  
-      // Ensure email is provided
-      if (!email) {
-          return res.status(400).send({ message: 'Email parameter is required.' });
-      }
-  
-      try {
-          // Create query to find blogs by user's email
-          const query = { 'userInfo.email': email };
-          const result = await blogsCollection.find(query).toArray();
-  
-          if (result.length === 0) {
-              return res.status(404).send({ message: 'No blogs found for this email.' });
-          }
-  
-          res.send(result);
-  
-      } catch (error) {
-          console.error('Error fetching blogs by email:', error);
-          res.status(500).send({ message: 'An error occurred while fetching the blogs.' });
-      }
-  });
-  
-  
-  
-
-    //..................................................
-
-    app.get('/blogsCount', async (req, res) => {
-      const category = req.query.category; // Category filter
-      const brand = req.query.brand; // Brand filter
-      let search = req.query.search || ''; // Search query
-      search = `${search}`;
-
-      // Build query based on search and filter
-      let query = {
-        title: { $regex: search, $options: 'i' }, // Case-insensitive search on title
-      };
-
-      if (category) query.category = category; // Filter by category if provided
-      if (brand) query.brand = brand; // Filter by brand if provided
-
-      try {
-        // Use countDocuments to count documents that match the query
-        const count = await blogsCollection.countDocuments(query);
-        res.send({ count });
-      } catch (error) {
-        res.status(500).send({ error: 'An error occurred while counting the blogs.' });
-      }
-    });
     //..................................................
     // add blogs
     app.post('/blogs', async (req, res) => {
