@@ -110,13 +110,29 @@ async function run() {
 
     app.get('/blogs/:email', async (req, res) => {
       const email = req.params.email;
-      console.log("Email received:", email); // Debugging email received
-      const query = { 'userInfo.email': email };
-  console.log(query);
-  const result = await blogsCollection.find(query).toArray()
-      res.send(result)
-      
+  
+      // Ensure email is provided
+      if (!email) {
+          return res.status(400).send({ message: 'Email parameter is required.' });
+      }
+  
+      try {
+          // Create query to find blogs by user's email
+          const query = { 'userInfo.email': email };
+          const result = await blogsCollection.find(query).toArray();
+  
+          if (result.length === 0) {
+              return res.status(404).send({ message: 'No blogs found for this email.' });
+          }
+  
+          res.send(result);
+  
+      } catch (error) {
+          console.error('Error fetching blogs by email:', error);
+          res.status(500).send({ message: 'An error occurred while fetching the blogs.' });
+      }
   });
+  
   
   
 
